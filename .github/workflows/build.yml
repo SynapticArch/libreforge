@@ -30,16 +30,20 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/build.gradle') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-
+      
       - name: Set timezone to Shanghai
         run: |
           sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
           sudo dpkg-reconfigure -f noninteractive tzdata
+
       - name: Build with Gradle
+        id: build
         run: |
           chmod +x ./gradlew
           ./gradlew build
-          find . -type f -name "*.jar"
+          # Find all JAR files and save them to an output variable
+          jar_files=$(find . -type f -name "*.jar" | tr '\n' ' ')
+          echo "::set-output name=jar_files::$jar_files"
 
       - name: Get timestamp and short SHA
         id: timestamp
@@ -64,7 +68,7 @@ jobs:
         if: success()
         with:
           name: ${{ steps.timestamp.outputs.repo_name }}-${{ steps.timestamp.outputs.short_sha }}
-          path: build/libs/*.jar
+          path: ${{ steps.build.outputs.jar_files }}
 
       - name: Automatic release
         if: success()
