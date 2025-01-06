@@ -68,7 +68,15 @@ jobs:
         if: success()
         with:
           name: ${{ steps.timestamp.outputs.repo_name }}-${{ steps.timestamp.outputs.short_sha }}
-          path: ${{ steps.build.outputs.jar_files }}
+          path: |
+            build/libs/*.jar
+            loader/build/libs/*.jar
+            core/common/build/libs/*.jar
+            core/legacy/build/libs/*.jar
+            core/build/libs/*.jar
+            core/modern/build/libs/*.jar
+            gradle-plugin/build/libs/*.jar
+            lib/*.jar
 
       - name: Automatic release
         if: success()
